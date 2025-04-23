@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import axios from "axios";
-import API_URL from "../config"; // Importamos la URL del backend
-import { useNavigate } from "react-router-dom"; // Importamos el hook useNavigate
-import { Alert } from "react-bootstrap"; // Importamos el componente de alerta de react-bootstrap
+import API_URL from "../config";
+import { useNavigate } from "react-router-dom";
+import { Toast, ToastContainer, Button } from "react-bootstrap";
 
 const Registro = () => {
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [correo, setCorreo] = useState("");
   const [contrasenia, setContrasenia] = useState("");
-  const [sexo, setSexo] = useState("");
+  const [sexo, setSexo] = useState("M");
   const [edad, setEdad] = useState("");
-  const [mensaje, setMensaje] = useState(""); // Para mostrar mensajes de error o éxito
 
-  const navigate = useNavigate(); // Usamos el hook useNavigate para redirigir
+  const [mensaje, setMensaje] = useState("");
+  const [mostrarToast, setMostrarToast] = useState(false);
+  const [tipoToast, setTipoToast] = useState("success");
+
+  const navigate = useNavigate();
 
   const handleRegistro = (e) => {
     e.preventDefault();
@@ -30,7 +33,8 @@ const Registro = () => {
       .then((response) => {
         if (response.status === 201) {
           setMensaje("Usuario registrado correctamente");
-          setTimeout(() => navigate("/login"), 2000); // Redirigir a login después de 2 segundos
+          setTipoToast("success");
+          setMostrarToast(true);
         }
       })
       .catch((error) => {
@@ -38,20 +42,49 @@ const Registro = () => {
         setMensaje(
           "Hubo un error al registrar al usuario. Inténtalo de nuevo."
         );
+        setTipoToast("danger");
+        setMostrarToast(true);
       });
+  };
+
+  const cerrarToast = () => {
+    setMostrarToast(false);
+    if (tipoToast === "success") {
+      navigate("/");
+    }
   };
 
   return (
     <div className="registro-container d-flex justify-content-center align-items-center vh-100">
+      {/* Toast centrado en pantalla */}
+      <ToastContainer
+        className="position-fixed top-50 start-50 translate-middle"
+        style={{ zIndex: 9999 }}
+      >
+        <Toast
+          onClose={() => setMostrarToast(false)}
+          show={mostrarToast}
+          bg={tipoToast}
+        >
+          <Toast.Header>
+            <strong className="me-auto">
+              {tipoToast === "success" ? "Éxito" : "Error"}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">
+            <p>{mensaje}</p>
+            <div className="text-end">
+              <Button variant="light" size="sm" onClick={cerrarToast}>
+                OK
+              </Button>
+            </div>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <div className="card p-4" style={{ maxWidth: "500px", width: "100%" }}>
         <h2 className="text-center mb-4">Registrarse</h2>
-        {mensaje && (
-          <Alert
-            variant={mensaje.includes("correctamente") ? "success" : "danger"}
-          >
-            {mensaje}
-          </Alert>
-        )}
+
         <form onSubmit={handleRegistro}>
           <div className="mb-3">
             <label>Nombre Completo:</label>

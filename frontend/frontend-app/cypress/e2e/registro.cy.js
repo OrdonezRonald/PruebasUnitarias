@@ -1,0 +1,30 @@
+describe("Test Registrar un nuevo usuario", () => {
+  it("Se registró un nuevo usuario y se inicio sesion con los datos ingresados", () => {
+    cy.visit("http://localhost:3000/");
+    cy.get('[data-testid="link-registro"]').click();
+    cy.url().should("include", "/registrarse");
+    cy.get(":nth-child(1) > .form-control").type("AYD1 prueba 5");
+    cy.wait(1000);
+    cy.get(":nth-child(2) > .form-control").type("prueba5@gmail.com");
+    cy.wait(1000);
+    cy.get(":nth-child(3) > .form-control").type("12345");
+    cy.wait(1000);
+    cy.get(".form-select").select("M");
+    cy.wait(1000);
+    cy.get(":nth-child(5) > .form-control").type("21");
+    cy.get(".btn").click();
+    cy.get("p").should("have.text", "Usuario registrado correctamente");
+    cy.wait(1000);
+    cy.get(".text-end > .btn").click();
+    cy.url().should("include", "/");
+    cy.wait(1000);
+    cy.get("#correo").type("prueba5@gmail.com");
+    cy.get("#contrasenia").type("12345");
+    cy.wait(1000);
+    cy.get("form").submit();
+    cy.wait(1000);
+    cy.contains("Inicio de sesión exitoso").should("be.visible");
+    cy.get(".fade > .btn").click();
+    cy.url().should("include", "/inicio");
+  });
+});
